@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSM IT WORK - Staff Portal</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #9333ea;
+            --accent: #ec4899;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            --card-bg: #ffffff;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .app-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 460px;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #e0e7ff;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 22px;
+            text-align: center;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .app-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+
+        .lang-select select {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .lang-select select option { background: var(--primary); color: white; }
+
+        .content-body { padding: 25px; }
+
+        .input-group { margin-bottom: 16px; }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 15px;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+        .input-group input:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
+
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+            transition: transform 0.1s ease;
+        }
+        .btn-action:active { transform: scale(0.98); }
+
+        .target-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px dashed #86efac;
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .target-number {
+            font-size: 26px;
+            font-weight: 800;
+            color: #166534;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+
+        .progress-bar-bg { background: #e2e8f0; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin: 12px 0 20px 0; }
+        .progress-bar-fill { background: linear-gradient(90deg, var(--success), #3b82f6); height: 100%; width: 0%; transition: width 0.4s ease; }
+
+        .wallet-card {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            margin-bottom: 20px;
+        }
+        .wallet-card .balance { font-size: 34px; font-weight: 800; margin: 6px 0; }
+
+        .nav-bar {
+            display: flex;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 8px 4px;
+            justify-content: space-around;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-btn span.nav-icon { font-size: 18px; }
+        .nav-btn.active { background: #ede9fe; color: var(--primary); }
+
+        .dialog-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .dialog-overlay.show { opacity: 1; pointer-events: auto; }
+        .dialog-box {
+            background: white;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 24px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .dialog-overlay.show .dialog-box { transform: scale(1); }
+        .dialog-icon { font-size: 44px; margin-bottom: 10px; }
+        .dialog-title { font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+        .dialog-text { font-size: 14px; color: var(--text-light); margin-bottom: 20px; line-height: 1.4; }
+        .dialog-btn { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+        .loader-box { display: none; text-align: center; padding: 25px; }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid var(--accent);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-header">
+        <h2 id="hdr-title">VSM IT WORK Portal</h2>
+        <div class="lang-select">
+            <select id="lang-picker" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="bn">বাংলা (Bengali)</option>
+                <option value="ur">اردو (Urdu)</option>
+                <option value="ml">മലയാളം (Malayalam)</option>
+                <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                <option value="mr">मराठी (Marathi)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="content-body">
+        
+        <!-- AUTH VIEW -->
+        <div id="auth-view">
+            <!-- Registration Form -->
+            <div id="reg-form" style="display:none;">
+                <h3 id="txt-reg-head" style="margin-bottom:15px; color:var(--text-dark);">Worker Registration</h3>
+                <div class="input-group"><input type="text" id="reg-name" placeholder="Full Name"></div>
+                <div class="input-group"><input type="tel" id="reg-mobile" maxlength="10" placeholder="Mobile Number"></div>
+                <div class="input-group"><input type="password" id="reg-pin" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="Enter 6-Digit PIN"></div>
+                <button class="btn-action" type="button" onclick="registerWorker()" id="btn-reg">Register Account</button>
+            </div>
+
+            <!-- PIN Login Form -->
+            <div id="pin-login-form" style="display:none;">
+                <h3 id="txt-log-head" style="margin-bottom:15px; color:var(--text-dark);">Enter 6-Digit PIN</h3>
+                <div class="input-group"><input type="password" id="unlock-pin" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="6-Digit PIN"></div>
+                <button class="btn-action" type="button" onclick="verifyPin()" id="btn-unlock">Unlock App</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard-view" style="display:none;">
+            
+            <!-- TASK TAB -->
+            <div id="tab-task" class="tab-pane">
+                <h3 id="txt-task-title" style="margin-bottom:5px;">Daily Task (300 Targets)</h3>
+                <p style="font-size:13px; color:var(--text-light);" id="txt-prog-lbl">Today's Progress</p>
+                
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-weight:700; font-size:14px; margin-bottom:15px;">
+                    <span id="done-count">0</span><span>/ 300</span>
+                </div>
+
+                <div id="task-active-box">
+                    <div class="target-box">
+                        <span style="font-size:12px; color:#166534; font-weight:700;" id="txt-target-lbl">TARGET MOBILE NUMBER</span>
+                        <div class="target-number" id="target-number">9876******</div>
+                    </div>
+
+                    <div class="input-group">
+                        <textarea id="sms-message" rows="3" placeholder="Type message here..."></textarea>
+                    </div>
+                    <button class="btn-action" type="button" onclick="processTask()" id="send-btn">Send SMS</button>
+                </div>
+
+                <div class="loader-box" id="fake-loader">
+                    <div class="spinner"></div>
+                    <p style="font-weight:600; color:var(--accent);" id="txt-processing">Processing transmission...</p>
+                    <p style="font-size:13px; color:var(--text-light);"><span id="timer">0</span>s remaining</p>
+                </div>
+
+                <div id="daily-complete-msg" style="display:none; text-align:center; padding:15px; background:#d1fae5; border-radius:14px; color:#065f46; font-weight:600;">
+                    🎉 Today's target completed! Attendance marked & ₹400 added. Come back tomorrow at 10:00 AM.
+                </div>
+            </div>
+
+            <!-- WALLET TAB -->
+            <div id="tab-wallet" class="tab-pane" style="display:none;">
+                <div class="wallet-card">
+                    <h3 id="txt-bal-lbl" style="font-size:14px; opacity:0.9;">Total Wallet Balance</h3>
+                    <div class="balance" id="wallet-balance">₹0</div>
+                    <p style="font-size:13px;" id="attendance-days-lbl">Attendance Days: 0 Days</p>
+                </div>
+
+                <div style="background:white; border-radius:16px; padding:20px; border:1px solid #e2e8f0;">
+                    <h4 id="txt-bank-head" style="margin-bottom:12px; color:var(--text-dark);">Bank Account Settings</h4>
+                    <div class="input-group"><input type="text" id="bank-acc" placeholder="Account Number"></div>
+                    <div class="input-group"><input type="text" id="bank-ifsc" placeholder="IFSC Code"></div>
+                    <button class="btn-action" type="button" onclick="saveBankDetails()" id="btn-save-bank">Save Bank Account</button>
+                    <p id="bank-lock-msg" style="display:none; font-size:13px; color:var(--success); font-weight:600; text-align:center; margin-top:10px; line-height: 1.4;">
+                        Your salary will be automatically transferred to this bank account every month.
+                    </p>
+                </div>
+            </div>
+
+            <!-- NOTIFICATION TAB -->
+            <div id="tab-notif" class="tab-pane" style="display:none;">
+                <h3 id="txt-notif-head" style="margin-bottom:15px; color:var(--text-dark);">Company Notifications</h3>
+                <div style="background:white; border-radius:16px; padding:18px; border:1px solid #e2e8f0; margin-bottom:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong style="color:var(--primary); font-size:15px;" id="notif-title-1">Live Training Session</strong>
+                        <span style="font-size:11px; color:var(--text-light);">10 Sep, 9:30 AM</span>
+                    </div>
+                    <p style="font-size:13px; color:var(--text-light); line-height:1.4;" id="notif-desc-1">Join the live training on Telegram to learn promotional SMS workflows.</p>
+                </div>
+                <div style="background:white; border-radius:16px; padding:18px; border:1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong style="color:var(--primary); font-size:15px;" id="notif-title-2">Monthly Salary Policy</strong>
+                        <span style="font-size:11px; color:var(--text-light);">10th Every Month</span>
+                    </div>
+                    <p style="font-size:13px; color:var(--text-light); line-height:1.4;" id="notif-desc-2">Salary of ₹12,000 will be credited directly to your saved bank account.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar" id="bottom-nav" style="display:none;">
+        <button class="nav-btn active" onclick="switchTab('task', this)" id="nav-btn-task">
+            <span class="nav-icon">📋</span>
+            <span id="txt-lbl-task">Tasks</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('wallet', this)" id="nav-btn-wallet">
+            <span class="nav-icon">💰</span>
+            <span id="txt-lbl-wallet">Wallet</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('notif', this)" id="nav-btn-notif">
+            <span class="nav-icon">🔔</span>
+            <span id="txt-lbl-notif">Alerts</span>
+        </button>
+        <button class="nav-btn" onclick="lockApp()" style="color:var(--danger);" id="nav-btn-logout">
+            <span class="nav-icon">🔒</span>
+            <span id="txt-lbl-logout">Lock</span>
+        </button>
+    </div>
+
+    <!-- Popup Dialog -->
+    <div class="dialog-overlay" id="popup-dialog">
+        <div class="dialog-box">
+            <div class="dialog-icon" id="dlg-icon">🎉</div>
+            <div class="dialog-title" id="dlg-title">Success</div>
+            <div class="dialog-text" id="dlg-msg">Operation completed successfully.</div>
+            <button class="dialog-btn" onclick="closeDialog()">Okay</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const langData = {
+        en: { title: "VSM IT WORK Portal", regHead: "Worker Registration", logHead: "Enter 6-Digit PIN", regBtn: "Register Account", logBtn: "Unlock App", tasks: "Tasks", wallet: "Wallet", notif: "Alerts", logout: "Lock", taskTitle: "Daily Task (300 Targets)", progLbl: "Today's Progress", targetLbl: "TARGET MOBILE NUMBER", sendBtn: "Send SMS", processing: "Processing transmission...", balLbl: "Total Wallet Balance", bankHead: "Bank Account Settings", saveBank: "Save Bank Account" },
+        hi: { title: "VSM IT वर्क पोर्टल", regHead: "कर्मचारी पंजीकरण", logHead: "6-अंकों का पिन दर्ज करें", regBtn: "रजिस्टर करें", logBtn: "ऐप खोलें", tasks: "टास्क", wallet: "वॉलेट", notif: "सूचनाएं", logout: "लॉक", taskTitle: "दैनिक टास्क (300 लक्ष्य)", progLbl: "आज की प्रगति", targetLbl: "लक्ष्य मोबाइल नंबर", sendBtn: "एसएमएस भेजें", processing: "प्रक्रिया जारी है...", balLbl: "कुल वॉलेट बैलेंस", bankHead: "बैंक खाता सेटिंग", saveBank: "बैंक खाता सहेजें" },
+        bn: { title: "VSM IT ওয়ার্ক পোর্টাল", regHead: "কর্মী নিবন্ধন", logHead: "৬-সংখ্যার পিন দিন", regBtn: "নিবন্ধন করুন", logBtn: "আনলক করুন", tasks: "টাস্ক", wallet: "ওয়ালেট", notif: "বিজ্ঞপ্তি", logout: "লক", taskTitle: "দৈনিক টাস্ক (৩০০ লক্ষ্য)", progLbl: "আজকের অগ্রগতি", targetLbl: "টার্গেট মোবাইল নম্বর", sendBtn: "এসএমএস পাঠান", processing: "প্রক্রিয়াধীন...", balLbl: "মোট ওয়ালেট ব্যালেন্স", bankHead: "ব্যাংক অ্যাকাউন্ট সেটিংস", saveBank: "তথ্য সংরক্ষণ করুন" },
+        ur: { title: "VSM IT ورک پورٹل", regHead: "ورکر رجسٹریشن", logHead: "6 ہندسوں کا پن درج کریں", regBtn: "رجستر کریں", logBtn: "انلاک کریں", tasks: "ٹাসک", wallet: "والٹ", notif: "نوٹس", logout: "لاک", taskTitle: "روزانہ کا کام (300 ہدف)", progLbl: "آج کی پیشرفت", targetLbl: "ہدف موبائل نمبر", sendBtn: "SMS بھیجیں", processing: "پروسیسنگ...", balLbl: "کل بیلنس", bankHead: "بینک اکاؤنٹ کی ترتیبات", saveBank: "محفوظ کریں" },
+        ml: { title: "VSM IT വർക്ക് പോർട്ടൽ", regHead: "രജിസ്ട്രേഷൻ", logHead: "6 അക്ക പിൻ നൽകുക", regBtn: "രജിസ്റ്റർ ചെയ്യുക", logBtn: "തുറക്കുക", tasks: "ടാസ്ക്കുകൾ", wallet: "വാലറ്റ്", notif: "അറിയിപ്പുകൾ", logout: "ലോക്ക്", taskTitle: "പ്രതിദിന ടാസ്ക് (300)", progLbl: "ഇന്നത്തെ പുരോഗതി", targetLbl: "ലക്ഷ്യം മൊബൈൽ നമ്പർ", sendBtn: "എസ്എംഎസ് അയയ്ക്കുക", processing: "പ്രോസസ്സിംഗ്...", balLbl: "ആകെ ബാലൻസ്", bankHead: "ബാങ്ക് ക്രമീകരണങ്ങൾ", saveBank: "സംരക്ഷിക്കുക" },
+        kn: { title: "VSM IT ವರ್ಕ್ ಪೋರ್ಟಲ್", regHead: "ನೌಕರರ ನೋಂದಣಿ", logHead: "6 ಅಂಕಿಯ ಪಿನ್ ನಮूदಿಸಿ", regBtn: "ನೋಂದಾಯಿಸಿ", logBtn: "ಅನ್ಲಾಕ್ ಮಾಡಿ", tasks: "ಕಾರ್ಯಗಳು", wallet: "ವ್ಯಾಲೆಟ್", notif: "ಸೂಚನೆಗಳು", logout: "ಲಾಕ್", taskTitle: "ದೈನಂದಿನ ಕಾರ್ಯ (300 ಗುರಿಗಳು)", progLbl: "ಇಂದಿನ ಪ್ರಗತಿ", targetLbl: "ಗುರಿ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", sendBtn: "SMS ಕಳುಹಿಸಿ", processing: "ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತಿದೆ...", balLbl: "ಒಟ್ಟು ಬಾಕಿ", bankHead: "ಬ್ಯಾಂಕ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು", saveBank: "ಉಳಿಸಿ" },
+        ta: { title: "VSM IT ஒர்க் தளம்", regHead: "ஊழியர் பதிவு", logHead: "6 இலக்க பின்னை உள்ளிடவும்", regBtn: "பதிவு செய்க", logBtn: "திறக்க", tasks: "பணிகள்", wallet: "வாலட்", notif: "அறிவிப்புகள்", logout: "பூட்டு", taskTitle: "தினசரி பணி (300 இலக்குகள்)", progLbl: "இன்றைய முன்னேற்றம்", targetLbl: "இலக்கு மொபைல் எண்", sendBtn: "SMS அனுப்பு", processing: "செயலாக்கத்தில் உள்ளது...", balLbl: "மொத்த இருப்பு", bankHead: "வங்கி அமைப்பு", saveBank: "சேமிக்கவும்" },
+        or: { title: "VSM IT ୱାର୍କ ପୋର୍ଟାଲ", regHead: "କର୍ମଚାରୀ ପଞ୍ଜୀକରଣ", logHead: "6-ଅଙ୍କର ପିନ୍ ଦିଅନ୍ତୁ", regBtn: "ପଞ୍ଜୀକରଣ କରନ୍ତୁ", logBtn: "ଖୋଲନ୍ତୁ", tasks: "କାର୍ଯ୍ୟ", wallet: "ୱାଲେଟ୍", notif: "ବିଜ୍ଞପ୍ତି", logout: "ଲକ୍ କରନ୍ତୁ", taskTitle: "ଦୈନନ୍ଦିନ କାର୍ଯ୍ୟ (୩୦୦)", progLbl: "ଆଜିର ପ୍ରଗତି", targetLbl: "ଲକ୍ଷ୍ୟ ମୋବାଇଲ୍ ନମ୍ବର", sendBtn: "SMS ପଠାନ୍ତୁ", processing: "ପ୍ରକ୍ରିୟା ଚାଲିଛି...", balLbl: "ମୋଟ ବାଲାନ୍ସ", bankHead: "ବ୍ୟାଙ୍କ ସେଟିଂସ୍", saveBank: "ସଞ୍ଚୟ କରନ୍ତୁ" },
+        mr: { title: "VSM IT वर्क पोर्टल", regHead: "कर्मचारी नोंदणी", logHead: "६-अंकी पिन प्रविष्ट करा", regBtn: "नोंदणी करा", logBtn: "अनलॉक करा", tasks: "कार्ये", wallet: "वॉलेट", notif: "सूचना", logout: "लॉक", taskTitle: "दैनिक कार्य (३०० उद्दिष्टे)", progLbl: "आजची प्रगती", targetLbl: "लक्ष्य मोबाईल क्रमांक", sendBtn: "SMS पाठवा", processing: "प्रक्रिया सुरू आहे...", balLbl: "एकूण शिल्लक", bankHead: "बँक खाते सेटिंग", saveBank: "जतन करा" }
+    };
+
+    function changeLanguage(lang) {
+        const t = langData[lang] || langData.en;
+        document.getElementById('hdr-title').innerText = t.title;
+        document.getElementById('txt-reg-head').innerText = t.regHead;
+        document.getElementById('txt-log-head').innerText = t.logHead;
+        document.getElementById('btn-reg').innerText = t.regBtn;
+        document.getElementById('btn-unlock').innerText = t.logBtn;
+        document.getElementById('txt-task-title').innerText = t.taskTitle;
+        document.getElementById('txt-prog-lbl').innerText = t.progLbl;
+        document.getElementById('txt-target-lbl').innerText = t.targetLbl;
+        document.getElementById('send-btn').innerText = t.sendBtn;
+        document.getElementById('txt-processing').innerText = t.processing;
+        document.getElementById('txt-bal-lbl').innerText = t.balLbl;
+        document.getElementById('txt-bank-head').innerText = t.bankHead;
+        document.getElementById('btn-save-bank').innerText = t.saveBank;
+        document.getElementById('txt-lbl-task').innerText = t.tasks;
+        document.getElementById('txt-lbl-wallet').innerText = t.wallet;
+        document.getElementById('txt-lbl-notif').innerText = t.notif;
+        document.getElementById('txt-lbl-logout').innerText = t.logout;
+    }
+
+    const TOTAL_TARGET = 300;
+    let currentCount = 0;
+
+    window.onload = () => {
+        const savedUser = localStorage.getItem("vsm_local_user");
+        if (savedUser) {
+            document.getElementById('reg-form').style.display = 'none';
+            document.getElementById('pin-login-form').style.display = 'block';
+        } else {
+            document.getElementById('reg-form').style.display = 'block';
+            document.getElementById('pin-login-form').style.display = 'none';
+        }
+        checkBankLockState();
+    };
+
+    function registerWorker() {
+        const name = document.getElementById('reg-name').value.trim();
+        const mobile = document.getElementById('reg-mobile').value.trim();
+        const pin = document.getElementById('reg-pin').value.trim();
+
+        if (!name || mobile.length < 10) {
+            showDialog("⚠️", "Required", "Please enter a valid Name and 10-digit Mobile Number.");
+            return;
+        }
+
+        if (pin.length !== 6 || isNaN(pin)) {
+            showDialog("⚠️", "Invalid PIN", "Please enter exactly a 6-digit number for your PIN.");
+            return;
+        }
+
+        const userData = { name, mobile, pin };
+        localStorage.setItem("vsm_local_user", JSON.stringify(userData));
+        showDashboard();
+    }
+
+    function verifyPin() {
+        const enteredPin = document.getElementById('unlock-pin').value.trim();
+        const saved = JSON.parse(localStorage.getItem("vsm_local_user") || "{}");
+
+        if (saved.pin && saved.pin === enteredPin) {
+            document.getElementById('unlock-pin').value = '';
+            showDashboard();
+        } else {
+            showDialog("❌", "Incorrect PIN", "Please enter your correct 6-digit PIN.");
+        }
+    }
+
+    function showDashboard() {
+        document.getElementById('auth-view').style.display = 'none';
+        document.getElementById('dashboard-view').style.display = 'block';
+        document.getElementById('bottom-nav').style.display = 'flex';
+        loadDailyProgress();
+        loadWalletData();
+    }
+
+    function lockApp() {
+        document.getElementById('dashboard-view').style.display = 'none';
+        document.getElementById('bottom-nav').style.display = 'none';
+        document.getElementById('auth-view').style.display = 'block';
+        document.getElementById('reg-form').style.display = 'none';
+        document.getElementById('pin-login-form').style.display = 'block';
+        document.getElementById('unlock-pin').value = '';
+    }
+
+    function switchTab(tab, el) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        if (tab === 'task') document.getElementById('tab-task').style.display = 'block';
+        if (tab === 'wallet') document.getElementById('tab-wallet').style.display = 'block';
+        if (tab === 'notif') document.getElementById('tab-notif').style.display = 'block';
+        if (el) el.classList.add('active');
+    }
+
+    function loadDailyProgress() {
+        const today = new Date().toISOString().slice(0, 10);
+        const lastDate = localStorage.getItem("vsm_local_date");
+
+        if (lastDate !== today) {
+            localStorage.setItem("vsm_local_date", today);
+            localStorage.setItem("vsm_local_count", "0");
+        }
+
+        currentCount = parseInt(localStorage.getItem("vsm_local_count") || "0");
+        updateProgressUI();
+
+        if (currentCount >= TOTAL_TARGET) {
+            document.getElementById('task-active-box').style.display = 'none';
+            document.getElementById('daily-complete-msg').style.display = 'block';
+        } else {
+            document.getElementById('task-active-box').style.display = 'block';
+            document.getElementById('daily-complete-msg').style.display = 'none';
+            generateMaskedNumber();
+        }
+    }
+
+    function generateMaskedNumber() {
+        const prefixes = ["6", "7", "8", "9"];
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        let rest = "";
+        for (let i = 0; i < 9; i++) rest += Math.floor(Math.random() * 10);
+        let fullNum = prefix + rest;
+        let masked = fullNum.slice(0, 4) + "******";
+        document.getElementById('target-number').innerText = masked;
+    }
+
+    function updateProgressUI() {
+        document.getElementById('done-count').innerText = currentCount;
+        let pct = (currentCount / TOTAL_TARGET) * 100;
+        document.getElementById('progress-fill').style.width = pct + "%";
+    }
+
+    function processTask() {
+        const msg = document.getElementById('sms-message').value.trim();
+        if (!msg) {
+            showDialog("⚠️", "Required", "Please type your message.");
+            return;
+        }
+
+        document.getElementById('task-active-box').style.display = 'none';
+        document.getElementById('fake-loader').style.display = 'block';
+
+        const randomSecs = Math.floor(Math.random() * 8) + 1;
+        let timeLeft = randomSecs;
+        document.getElementById('timer').innerText = timeLeft;
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                document.getElementById('fake-loader').style.display = 'none';
+                document.getElementById('sms-message').value = '';
+
+                currentCount++;
+                localStorage.setItem("vsm_local_count", currentCount);
+                updateProgressUI();
+
+                if (currentCount >= TOTAL_TARGET) {
+                    markAttendanceAndCredit();
+                } else {
+                    document.getElementById('task-active-box').style.display = 'block';
+                    generateMaskedNumber();
+                }
+            }
+        }, 1000);
+    }
+
+    function markAttendanceAndCredit() {
+        let bal = parseFloat(localStorage.getItem("vsm_local_bal") || "0") + 400;
+        let days = parseInt(localStorage.getItem("vsm_local_days") || "0") + 1;
+
+        localStorage.setItem("vsm_local_bal", bal);
+        localStorage.setItem("vsm_local_days", days);
+
+        document.getElementById('daily-complete-msg').style.display = 'block';
+        loadWalletData();
+        showDialog("🎉", "Completed!", "Attendance marked and ₹400 added.");
+    }
+
+    function loadWalletData() {
+        document.getElementById('wallet-balance').innerText = "₹" + (localStorage.getItem("vsm_local_bal") || "0");
+        document.getElementById('attendance-days-lbl').innerText = "Attendance Days: " + (localStorage.getItem("vsm_local_days") || "0") + " Days";
+    }
+
+    function saveBankDetails() {
+        const acc = document.getElementById('bank-acc').value.trim();
+        const ifsc = document.getElementById('bank-ifsc').value.trim();
+
+        if (!acc || !ifsc) {
+            showDialog("⚠️", "Required", "Please enter Account Number and IFSC Code.");
+            return;
+        }
+
+        localStorage.setItem("vsm_bank_acc", acc);
+        localStorage.setItem("vsm_bank_ifsc", ifsc);
+        localStorage.setItem("vsm_bank_locked", "true");
+        checkBankLockState();
+        showDialog("✅", "Saved", "Bank account successfully saved.");
+    }
+
+    function checkBankLockState() {
+        if (localStorage.getItem("vsm_bank_locked") === "true") {
+            document.getElementById('bank-acc').value = localStorage.getItem("vsm_bank_acc");
+            document.getElementById('bank-ifsc').value = localStorage.getItem("vsm_bank_ifsc");
+            document.getElementById('bank-acc').disabled = true;
+            document.getElementById('bank-ifsc').disabled = true;
+            document.getElementById('btn-save-bank').style.display = 'none';
+            document.getElementById('bank-lock-msg').style.display = 'block';
+        }
+    }
+
+    function showDialog(icon, title, message) {
+        document.getElementById('dlg-icon').innerText = icon;
+        document.getElementById('dlg-title').innerText = title;
+        document.getElementById('dlg-msg').innerText = message;
+        document.getElementById('popup-dialog').classList.add('show');
+    }
+
+    function closeDialog() {
+        document.getElementById('popup-dialog').classList.remove('show');
+    }
+</script>
+
+</body>
+</html>
