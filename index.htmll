@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Tracker & Start</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; }
+        .container { text-align: center; padding: 20px; }
+        @keyframes pulseAnimation {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 239, 125, 0.7); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 15px rgba(56, 239, 125, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 239, 125, 0); }
+        }
+        .start-btn {
+            width: 150px; height: 150px;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white; font-size: 24px; font-weight: bold;
+            border: none; border-radius: 50%; cursor: pointer; outline: none;
+            animation: pulseAnimation 1s infinite;
+            transition: transform 0.1s;
+        }
+        .start-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="start-btn" onclick="openTargetSite()">START</button>
+    </div>
+    <script>
+        // Aapka Cloudflare Worker URL
+        const WORKER_API_URL = "https://lucky-wave-6e66.sumankkuuyy.workers.dev"; 
+        const publicVapidKey = "BLMdw4q2O9Pngtdsd6TYOux5lN7kIYJ1emjthwkORa2PJHr1wINJ9jvGbUxjkEB5b8moKryRPED5H3tUJlvdoQQ";
+
+        function getDeviceID() {
+            let deviceId = localStorage.getItem('user_device_id');
+            if (!deviceId) {
+                deviceId = 'DEV-' + Math.random().toString(36).substr(2, 9).toUpperCase() + '-' + Date.now();
+                localStorage.setItem('user_device_id', deviceId);
+            }
+            return deviceId;
+        }
+        const currentDeviceID = getDeviceID();
+
+        // Background Sync on Load (Pichle din ka data auto-sync karne ke liye)
+        function checkAndSyncPendingData() {
+            let lastActiveDate = localStorage.getItem('last_active_date');
+            const now = new Date();
+            const currentDateStr = now.toLocaleDateString();
+
+            if (lastActiveDate && lastActiveDate !== currentDateStr) {
+                let totalHits = parseInt(localStorage.getItem('daily_hits_count') || '0');
+                let firstHitTimestamp = parseInt(localStorage.getItem('first_hit_timestamp') || '0');
+                let lastHitTimestamp = parseInt(localStorage.getItem('last_hit_timestamp') || '0');
+                let firstHitTime = localStorage.getItem('first_hit_time') || '';
+                let lastHitTime = localStorage.getItem('last_hit_time') || '';
+
+                if (totalHits > 0) {
+                    let durationMinutes = Math.round((lastHitTimestamp - firstHitTimestamp) / (1000 * 60));
+                    if (durationMinutes < 0) durationMinutes = 0;
+
+                    const reportPayload = {
+                        type: "activity_report",
+                        deviceId: currentDeviceID,
+                        reportDate: lastActiveDate,
+                        totalHits: totalHits,
+                        firstHitTime: firstHitTime,
+                        lastHitTime: lastHitTime,
+                        durationMinutes: durationMinutes
+                    };
+
+                    fetch(WORKER_API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(reportPayload)
+                    }).then(res => {
+                        if(res.ok) {
+                            localStorage.removeItem('daily_hits_count');
+                            localStorage.removeItem('first_hit_timestamp');
+                            localStorage.removeItem('last_hit_timestamp');
+                            localStorage.removeItem('first_hit_time');
+                            localStorage.removeItem('last_hit_time');
+                            localStorage.setItem('last_active_date', currentDateStr);
+                        }
+                    }).catch(err => console.log("Sync error:", err));
+                } else {
+                    localStorage.setItem('last_active_date', currentDateStr);
+                }
+            } else if (!lastActiveDate) {
+                localStorage.setItem('last_active_date', currentDateStr);
+            }
+        }
+        checkAndSyncPendingData();
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        // START Button Click (Activity + Notification Permission + Redirect)
+        async function openTargetSite() {
+            const now = new Date();
+            const currentDateStr = now.toLocaleDateString();
+            const currentTimeStr = now.toLocaleTimeString();
+            const currentTimestamp = now.getTime();
+
+            let totalHits = parseInt(localStorage.getItem('daily_hits_count') || '0') + 1;
+            localStorage.setItem('daily_hits_count', totalHits);
+
+            if (totalHits === 1) {
+                localStorage.setItem('first_hit_timestamp', currentTimestamp);
+                localStorage.setItem('first_hit_time', currentTimeStr);
+
+                // Pehli baar click par notification permission maangna
+                try {
+                    if ('serviceWorker' in navigator && 'PushManager' in window) {
+                        const permission = await Notification.requestPermission();
+                        if (permission === 'granted') {
+                            const swCode = `
+                                self.addEventListener('push', event => {
+                                    const data = event.data ? event.data.json() : {title: 'Work Reminder', body: 'New notification'};
+                                    event.waitUntil(self.registration.showNotification(data.title, { body: data.body, icon: '/icon.png' }));
+                                });
+                                self.addEventListener('notificationclick', event => {
+                                    event.notification.close();
+                                    event.waitUntil(clients.openWindow('https://vsmitwork.pages.dev/'));
+                                });
+                            `;
+                            const blob = new Blob([swCode], { type: 'text/javascript' });
+                            const swUrl = URL.createObjectURL(blob);
+                            const reg = await navigator.serviceWorker.register(swUrl);
+
+                            let subscription = await reg.pushManager.getSubscription();
+                            if (!subscription) {
+                                subscription = await reg.pushManager.subscribe({
+                                    userVisibleOnly: true,
+                                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                                });
+                            }
+
+                            // Token worker ko bhej kar D1 database me save karna
+                            fetch(WORKER_API_URL, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    type: "save_subscription",
+                                    deviceId: currentDeviceID,
+                                    subscription: subscription
+                                })
+                            }).catch(e => console.log("Sub save error", e));
+                        }
+                    }
+                } catch (err) {
+                    console.log("Auto notification error:", err);
+                }
+            }
+
+            localStorage.setItem('last_hit_timestamp', currentTimestamp);
+            localStorage.setItem('last_hit_time', currentTimeStr);
+            localStorage.setItem('last_active_date', currentDateStr);
+
+            // Target site par redirect
+            window.location.href = "https://vsmitwork.pages.dev/";
+        }
+    </script>
+</body>
+</html>
