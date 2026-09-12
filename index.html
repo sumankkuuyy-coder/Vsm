@@ -2,825 +2,176 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VSM IT WORK - Staff Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Gateway - Access Restricted</title>
     <style>
-        :root {
-            --primary: #4f46e5;
-            --secondary: #9333ea;
-            --accent: #ec4899;
-            --success: #10b981;
-            --danger: #ef4444;
-            --bg-gradient: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #fae8ff 100%);
-            --card-bg: #ffffff;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            background: var(--bg-gradient);
+        body {
+            background: linear-gradient(135deg, #001f3f, #004080, #001f3f);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
         }
 
-        .app-container {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 480px;
-            height: 100%;
-            max-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
-            overflow: hidden;
-            position: relative;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        @media (min-width: 520px) {
-            .app-container {
-                height: 92vh;
-                max-height: 850px;
-                border-radius: 32px;
-                border: 2px solid #e0e7ff;
+        /* Advanced Small Red Pulsing Popup */
+        .warning-modal {
+            background: rgba(255, 255, 255, 0.96);
+            width: 100%;
+            max-width: 380px;
+            padding: 28px 22px;
+            border-radius: 14px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 2px solid #ff4d4d;
+            position: relative;
+            backdrop-filter: blur(10px);
+            animation: redPulseModal 2s infinite ease-in-out;
+        }
+
+        @keyframes redPulseModal {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(255, 77, 77, 0.5), inset 0 0 10px rgba(255, 77, 77, 0.1);
+            }
+            50% {
+                transform: scale(1.04);
+                box-shadow: 0 0 30px rgba(255, 77, 77, 0.9), inset 0 0 15px rgba(255, 77, 77, 0.2);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(255, 77, 77, 0.5), inset 0 0 10px rgba(255, 77, 77, 0.1);
             }
         }
 
-        .app-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 16px;
-            text-align: center;
-            border-bottom-left-radius: 28px;
-            border-bottom-right-radius: 28px;
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .app-header h2 { font-size: 20px; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
-
-        .live-clock-box {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 14px;
-            padding: 6px 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            font-size: 11.5px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .lang-select select {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            outline: none;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .lang-select select option { background: var(--primary); color: white; }
-
-        .content-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            -webkit-overflow-scrolling: touch;
-            background: radial-gradient(circle at top, rgba(236, 72, 153, 0.05), transparent 70%);
-        }
-
-        .welcome-banner {
-            text-align: center;
-            padding: 30px 20px;
-            animation: fadeIn 0.5s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 100%;
-        }
-        .welcome-banner h3 { font-size: 22px; color: var(--text-dark); margin-bottom: 8px; font-weight: 800; }
-        .welcome-banner p { font-size: 13px; color: var(--text-light); margin-bottom: 25px; line-height: 1.5; }
-
-        .input-group { margin-bottom: 12px; width: 100%; text-align: left; }
-        .input-group input, .input-group textarea {
-            width: 100%;
-            padding: 14px 16px;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            font-size: 14px;
-            color: var(--text-dark);
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .input-group input:focus, .input-group textarea:focus {
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.12);
-            transform: translateY(-1px);
-        }
-        .input-group input:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
-        
-        .char-count { font-size: 11px; color: var(--text-light); text-align: right; margin-top: 2px; font-weight: 600; }
-
-        .btn-action {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 16px;
+        /* Top Status Badge */
+        .status-badge {
+            background-color: #ff4d4d;
+            color: #ffffff;
+            font-size: 11px;
             font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
-            transition: all 0.2s ease;
-        }
-        .btn-action:active { transform: scale(0.97); }
-
-        .target-box {
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-            border: 2px dashed #86efac;
+            text-transform: uppercase;
+            padding: 4px 10px;
             border-radius: 20px;
-            padding: 18px;
-            text-align: center;
-            margin-bottom: 18px;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.08);
-        }
-        .target-number {
-            font-size: 26px;
-            font-weight: 800;
-            color: #166534;
-            letter-spacing: 2px;
-            margin-top: 4px;
-        }
-
-        .progress-bar-bg { background: #e2e8f0; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin: 10px 0 16px 0; }
-        .progress-bar-fill { background: linear-gradient(90deg, var(--success), #3b82f6); height: 100%; width: 0%; transition: width 0.4s ease; }
-
-        .wallet-card {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border-radius: 22px;
-            padding: 22px;
-            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.3);
-            margin-bottom: 20px;
-        }
-        .wallet-card .balance { font-size: 34px; font-weight: 800; margin: 6px 0; }
-
-        .history-card, .notif-card {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid #e2e8f0;
+            display: inline-block;
             margin-bottom: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            border-left: 5px solid var(--primary);
-            transition: transform 0.2s;
+            letter-spacing: 1px;
+            animation: blinkBadge 1.5s infinite;
         }
-        .history-card:hover, .notif-card:hover { transform: translateY(-2px); }
-        .history-date { font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .history-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-light); margin-bottom: 5px; }
-        .history-row span strong { color: var(--text-dark); }
 
-        .nav-bar {
-            display: flex;
-            background: #ffffff;
-            border-top: 1px solid #e2e8f0;
-            padding: 6px 2px;
-            justify-content: space-around;
-            flex-shrink: 0;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+        @keyframes blinkBadge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
-        .nav-btn {
-            background: none;
+
+        /* Warning Icon */
+        .warning-icon {
+            font-size: 42px;
+            color: #ff4d4d;
+            margin-bottom: 10px;
+            animation: bounceIcon 1s infinite alternate;
+        }
+
+        @keyframes bounceIcon {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-4px); }
+        }
+
+        /* Warning Header */
+        .warning-header {
+            color: #cc0000;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Warning Message */
+        .warning-message {
+            color: #2c3e50;
+            font-size: 13.5px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        .warning-message strong {
+            color: #004080;
+        }
+
+        .price-tag {
+            color: #d9534f;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        /* Action Button with Telegram Link */
+        .action-btn {
+            background: linear-gradient(135deg, #0088cc, #005f99); /* Telegram Blue Theme */
+            color: #ffffff;
             border: none;
-            color: var(--text-light);
+            padding: 12px 20px;
+            font-size: 14px;
             font-weight: 600;
-            font-size: 10.5px;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 6px 6px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            transition: all 0.2s ease;
-        }
-        .nav-btn span.nav-icon { font-size: 18px; }
-        .nav-btn.active { background: #ede9fe; color: var(--primary); transform: translateY(-2px); }
-
-        .dialog-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px;
-        }
-        .dialog-overlay.show { opacity: 1; pointer-events: auto; }
-        
-        .dialog-box {
-            background: white;
+            transition: all 0.3s ease;
             width: 100%;
-            max-width: 380px;
-            border-radius: 28px;
-            padding: 28px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(79, 70, 229, 0.25);
-            transform: scale(0.7) translateY(20px);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            position: relative;
-            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
         }
-        .dialog-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-        }
-        .dialog-overlay.show .dialog-box { transform: scale(1) translateY(0); }
-        
-        .dialog-icon { font-size: 42px; margin-bottom: 6px; }
-        .dialog-title { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; }
-        .dialog-text { font-size: 13px; color: var(--text-light); margin-bottom: 15px; line-height: 1.4; }
-        .dialog-btn { 
-            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
-            color: white; border: none; width: 100%; padding: 13px; border-radius: 14px; 
-            font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-        }
-        .dialog-btn:active { transform: scale(0.97); }
 
-        .loader-box { display: none; text-align: center; padding: 20px; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1; margin-top: 10px; }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid var(--accent);
-            border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px auto;
+        .action-btn:hover {
+            background: linear-gradient(135deg, #0077b3, #004d80);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.6);
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="app-header">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <button id="back-btn" onclick="goBackTab()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: none;">⬅ Back</button>
-            <h2 id="hdr-title" style="flex: 1; text-align: center;">VSM IT WORK Portal</h2>
-            <div style="width: 50px;"></div>
-        </div>
-        
-        <div class="live-clock-box">
-            <span id="live-day-date">📅 Loading...</span>
-            <span id="live-time" style="font-weight: 700; color: #fde047;">⏰ --:--:--</span>
+    <div class="warning-modal">
+        <!-- Status Badge -->
+        <div>
+            <span class="status-badge">System Restriction</span>
         </div>
 
-        <div class="lang-select">
-            <select id="lang-picker" onchange="changeLanguage(this.value)">
-                <option value="en">English</option>
-                <option value="hi">हिंदी (Hindi)</option>
-            </select>
+        <!-- Warning Icon -->
+        <div class="warning-icon">⚠️</div>
+
+        <!-- Warning Title -->
+        <div class="warning-header">
+            Access Verification Required
         </div>
+
+        <!-- Official Warning Content -->
+        <div class="warning-message">
+            Please acquire your <strong>Instaship ID</strong> to proceed further.<br>
+            Submit your request instantly through our official chatbot.<br><br>
+            <span class="price-tag">ID Activation Charge: ₹999/-</span>
+        </div>
+
+        <!-- Action Button Linked to Telegram Bot -->
+        <a href="https://t.me/Vsmitwork_bot" target="_blank" class="action-btn">
+            🚀 Request ID via Chatbot
+        </a>
     </div>
-
-    <div class="content-body">
-        
-        <!-- Welcome Screen when locked -->
-        <div id="auth-view" class="welcome-banner">
-            <div style="font-size: 50px; margin-bottom: 10px;">💼</div>
-            <h3 id="txt-welcome-head">Welcome to VSM IT WORK</h3>
-            <p id="txt-welcome-desc">Secure staff portal for daily promotional task management & automated salary payout.</p>
-            <button class="btn-action" onclick="openAuthPopup()" id="btn-open-auth">Get Started / Login</button>
-        </div>
-
-        <!-- Dashboard View -->
-        <div id="dashboard-view" style="display:none; width: 100%; height: 100%;">
-            
-            <!-- Tasks Tab -->
-            <div id="tab-task" class="tab-pane">
-                <h3 id="txt-task-title" style="margin-bottom:4px; font-size:18px;">Daily Task (300 Targets)</h3>
-                <p style="font-size:12px; color:var(--text-light);" id="txt-prog-lbl">Today's Progress</p>
-                
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="progress-fill"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-weight:700; font-size:13px; margin-bottom:14px;">
-                    <span id="done-count">0</span><span>/ 300</span>
-                </div>
-
-                <div id="task-active-box">
-                    <div class="target-box">
-                        <span style="font-size:11px; color:#166534; font-weight:700;" id="txt-target-lbl">TARGET MOBILE NUMBER</span>
-                        <div class="target-number" id="target-number">9876******</div>
-                    </div>
-
-                    <div class="input-group">
-                        <textarea id="sms-message" rows="3" oninput="updateCharCount()" placeholder="Type message here (Min 50, Max 250 chars)...">Hello! Check out this amazing daily promotional offer from our verified brand partner. Grab exclusive discounts instantly!</textarea>
-                        <div class="char-count"><span id="char-counter">105</span> / 250 chars (Min 50)</div>
-                    </div>
-                    <button class="btn-action" type="button" onclick="processTask()" id="send-btn">Send SMS</button>
-                </div>
-
-                <div class="loader-box" id="fake-loader">
-                    <div class="spinner"></div>
-                    <p style="font-weight:700; color:var(--accent); font-size:14px;" id="txt-processing">Sending Message...</p>
-                    <p style="font-size:12px; color:var(--text-light); margin-top: 4px;">Please wait, transmitting securely (<span id="timer">0</span>s remaining)</p>
-                </div>
-
-                <div id="daily-complete-msg" style="display:none; text-align:center; padding:14px; background:#d1fae5; border-radius:14px; color:#065f46; font-weight:600; font-size:13px; line-height:1.4;">
-                    🎉 Today's 300 targets completed! Attendance marked successfully & ₹400 added. Come back tomorrow at 10:00 AM.
-                </div>
-            </div>
-
-            <!-- Wallet Tab -->
-            <div id="tab-wallet" class="tab-pane" style="display:none;">
-                <div class="wallet-card">
-                    <h3 id="txt-bal-lbl" style="font-size:13px; opacity:0.9;">Total Wallet Balance</h3>
-                    <div class="balance" id="wallet-balance">₹0</div>
-                    <p style="font-size:12px;" id="attendance-days-lbl">Attendance Days: 0 Days</p>
-                </div>
-
-                <div style="background:white; border-radius:18px; padding:18px; border:1px solid #e2e8f0;">
-                    <h4 id="txt-bank-head" style="margin-bottom:10px; color:var(--text-dark); font-size:15px;">Bank Account Settings</h4>
-                    <div class="input-group"><input type="text" id="bank-acc" placeholder="Account Number"></div>
-                    <div class="input-group"><input type="text" id="bank-ifsc" placeholder="IFSC Code"></div>
-                    <button class="btn-action" type="button" onclick="saveBankDetails()" id="btn-save-bank">Save Bank Account</button>
-                    <p id="bank-lock-msg" style="display:none; font-size:12px; color:var(--success); font-weight:600; text-align:center; margin-top:8px; line-height: 1.4;">
-                        Your salary will be automatically transferred to this bank account every month.
-                    </p>
-                </div>
-            </div>
-
-            <!-- History Tab -->
-            <div id="tab-history" class="tab-pane" style="display:none;">
-                <h3 id="txt-hist-head" style="margin-bottom:14px; color:var(--text-dark); font-size:18px;">Work History</h3>
-                <div id="history-list-container"></div>
-            </div>
-
-            <!-- Notifications Tab -->
-            <div id="tab-notif" class="tab-pane" style="display:none;">
-                <h3 id="txt-notif-head" style="margin-bottom:14px; color:var(--text-dark); font-size:18px;">Company Announcements</h3>
-                
-                <div class="notif-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <strong style="color:var(--primary); font-size:14px;">🌅 Next Day Task Schedule</strong>
-                        <span style="font-size:11px; color:var(--text-light);">Daily Reset</span>
-                    </div>
-                    <p style="font-size:12px; color:var(--text-light); line-height:1.4;">Agla naya task aur target agle din subah **10:00 AM** par automatically refresh ho jayega. Apni attendance time par complete karein.</p>
-                </div>
-
-                <div class="notif-card" style="border-left-color: var(--success);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <strong style="color:var(--success); font-size:14px;">⚡ Daily Task Incentive</strong>
-                        <span style="font-size:11px; color:var(--text-light);">Instant</span>
-                    </div>
-                    <p style="font-size:12px; color:var(--text-light); line-height:1.4;">Rozana ke 300 target complete karne par aapke wallet me **₹400** instant credit ho jayenge aur attendance successfully mark ho jayegi.</p>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Bottom Navigation Bar -->
-    <div class="nav-bar" id="bottom-nav" style="display:none;">
-        <button class="nav-btn active" onclick="switchTab('task', this)" id="nav-btn-task">
-            <span class="nav-icon">📋</span>
-            <span id="txt-lbl-task">Tasks</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('wallet', this)" id="nav-btn-wallet">
-            <span class="nav-icon">💰</span>
-            <span id="txt-lbl-wallet">Wallet</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('history', this)" id="nav-btn-history">
-            <span class="nav-icon">📜</span>
-            <span id="txt-lbl-history">History</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('notif', this)" id="nav-btn-notif">
-            <span class="nav-icon">🔔</span>
-            <span id="txt-lbl-notif">Alerts</span>
-        </button>
-        <button class="nav-btn" onclick="lockApp()" style="color:var(--danger);" id="nav-btn-logout">
-            <span class="nav-icon">🔒</span>
-            <span id="txt-lbl-logout">Lock</span>
-        </button>
-    </div>
-
-    <!-- AUTHENTICATION POPUP -->
-    <div class="dialog-overlay" id="auth-popup">
-        <div class="dialog-box" style="text-align: left;">
-            <div style="text-align: center; margin-bottom: 12px;">
-                <div class="dialog-icon" id="auth-icon">🚀</div>
-                <div class="dialog-title" id="auth-modal-title">Worker Registration</div>
-            </div>
-
-            <div id="reg-form-popup">
-                <div class="input-group"><input type="text" id="reg-name" placeholder="Full Name"></div>
-                <div class="input-group"><input type="tel" id="reg-mobile" maxlength="10" placeholder="Mobile Number"></div>
-                <div class="input-group"><input type="password" id="reg-pin" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="Create 6-Digit PIN"></div>
-                <button class="btn-action" type="button" onclick="registerWorker()" id="btn-reg">Register Account</button>
-            </div>
-
-            <div id="pin-login-form-popup" style="display:none;">
-                <div class="input-group"><input type="password" id="unlock-pin" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="Enter 6-Digit PIN"></div>
-                <button class="btn-action" type="button" onclick="verifyPin()" id="btn-unlock">Unlock Portal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- GENERAL DIALOG -->
-    <div class="dialog-overlay" id="popup-dialog">
-        <div class="dialog-box">
-            <div class="dialog-icon" id="dlg-icon">🎉</div>
-            <div class="dialog-title" id="dlg-title">Success</div>
-            <div class="dialog-text" id="dlg-msg">Operation completed successfully.</div>
-            <button class="dialog-btn" onclick="closeDialog()">Okay</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const langData = {
-        en: { title: "VSM IT WORK Portal", regHead: "Worker Registration", logHead: "Enter 6-Digit PIN", regBtn: "Register Account", logBtn: "Unlock App", tasks: "Tasks", wallet: "Wallet", history: "History", notif: "Alerts", logout: "Lock", taskTitle: "Daily Task (300 Targets)", progLbl: "Today's Progress", targetLbl: "TARGET MOBILE NUMBER", sendBtn: "Send SMS", processing: "Sending Message...", balLbl: "Total Wallet Balance", bankHead: "Bank Account Settings", saveBank: "Save Bank Account", welcomeHead: "Welcome to VSM IT WORK", welcomeDesc: "Secure staff portal for daily promotional task management & automated salary payout.", getStarted: "Get Started / Login", histHead: "Work History", notifHead: "Company Announcements" },
-        hi: { title: "VSM IT वर्क पोर्टल", regHead: "कर्मचारी पंजीकरण", logHead: "6-अंकों का पिन दर्ज करें", regBtn: "रजिस्टर करें", logBtn: "ऐप खोलें", tasks: "टास्क", wallet: "वॉलेट", history: "इतिहास", notif: "सूचनाएं", logout: "लॉक", taskTitle: "दैनिक टास्क (300 लक्ष्य)", progLbl: "आज की प्रगति", targetLbl: "लक्ष्य मोबाइल नंबर", sendBtn: "एसएमएस भेजें", processing: "संदेश भेजा जा रहा है...", balLbl: "कुल वॉलेट बैलेंस", bankHead: "बैंक खाता सेटिंग", saveBank: "बैंक खाता सहेजें", welcomeHead: "VSM IT वर्क में आपका स्वागत है", welcomeDesc: "दैनिक प्रमोशनल टास्क और ऑटोमैटेड सैलरी भुगतान के लिए सुरक्षित स्टाफ पोर्टल।", getStarted: "शुरू करें / लॉगिन करें", histHead: "कार्य इतिहास", notifHead: "कंपनी की घोषणाएं" }
-    };
-
-    function changeLanguage(lang) {
-        const t = langData[lang] || langData.en;
-        document.getElementById('hdr-title').innerText = t.title;
-        document.getElementById('auth-modal-title').innerText = t.regHead;
-        document.getElementById('btn-reg').innerText = t.regBtn;
-        document.getElementById('btn-unlock').innerText = t.logBtn;
-        document.getElementById('txt-task-title').innerText = t.taskTitle;
-        document.getElementById('txt-prog-lbl').innerText = t.progLbl;
-        document.getElementById('txt-target-lbl').innerText = t.targetLbl;
-        document.getElementById('send-btn').innerText = t.sendBtn;
-        document.getElementById('txt-processing').innerText = t.processing;
-        document.getElementById('txt-bal-lbl').innerText = t.balLbl;
-        document.getElementById('txt-bank-head').innerText = t.bankHead;
-        document.getElementById('btn-save-bank').innerText = t.saveBank;
-        document.getElementById('txt-lbl-task').innerText = t.tasks;
-        document.getElementById('txt-lbl-wallet').innerText = t.wallet;
-        document.getElementById('txt-lbl-history').innerText = t.history;
-        document.getElementById('txt-lbl-notif').innerText = t.notif;
-        document.getElementById('txt-lbl-logout').innerText = t.logout;
-        document.getElementById('txt-welcome-head').innerText = t.welcomeHead;
-        document.getElementById('txt-welcome-desc').innerText = t.welcomeDesc;
-        document.getElementById('btn-open-auth').innerText = t.getStarted;
-        document.getElementById('txt-hist-head').innerText = t.histHead;
-        document.getElementById('txt-notif-head').innerText = t.notifHead;
-    }
-
-    // Live Indian Standard Time (IST) & Date Clock
-    function updateISTClock() {
-        const now = new Date();
-        const timeOptions = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        const dateOptions = { timeZone: 'Asia/Kolkata', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-
-        document.getElementById('live-time').innerText = "⏰ " + now.toLocaleTimeString('en-US', timeOptions);
-        document.getElementById('live-day-date').innerText = "📅 " + now.toLocaleDateString('en-US', dateOptions);
-    }
-    setInterval(updateISTClock, 1000);
-
-    const TOTAL_TARGET = 300;
-    let currentCount = 0;
-    let currentTabName = 'task';
-
-    window.onload = () => {
-        updateISTClock();
-        updateCharCount();
-        const savedUser = localStorage.getItem("vsm_local_user");
-        if (savedUser) {
-            document.getElementById('reg-form-popup').style.display = 'none';
-            document.getElementById('pin-login-form-popup').style.display = 'block';
-            document.getElementById('auth-icon').innerText = '🔐';
-            document.getElementById('auth-modal-title').innerText = 'Enter 6-Digit PIN';
-        } else {
-            document.getElementById('reg-form-popup').style.display = 'block';
-            document.getElementById('pin-login-form-popup').style.display = 'none';
-            document.getElementById('auth-icon').innerText = '🚀';
-            document.getElementById('auth-modal-title').innerText = 'Worker Registration';
-        }
-        checkBankLockState();
-    };
-
-    function openAuthPopup() {
-        document.getElementById('auth-popup').classList.add('show');
-    }
-
-    function registerWorker() {
-        const name = document.getElementById('reg-name').value.trim();
-        const mobile = document.getElementById('reg-mobile').value.trim();
-        const pin = document.getElementById('reg-pin').value.trim();
-
-        if (!name || mobile.length < 10) {
-            showDialog("⚠️", "Required", "Please enter a valid Name and 10-digit Mobile Number.");
-            return;
-        }
-
-        if (pin.length !== 6 || isNaN(pin)) {
-            showDialog("⚠️", "Invalid PIN", "Please enter exactly a 6-digit number for your PIN.");
-            return;
-        }
-
-        const userData = { name, mobile, pin };
-        localStorage.setItem("vsm_local_user", JSON.stringify(userData));
-        document.getElementById('auth-popup').classList.remove('show');
-        showDashboard();
-    }
-
-    function verifyPin() {
-        const enteredPin = document.getElementById('unlock-pin').value.trim();
-        const saved = JSON.parse(localStorage.getItem("vsm_local_user") || "{}");
-
-        if (saved.pin && saved.pin === enteredPin) {
-            document.getElementById('unlock-pin').value = '';
-            document.getElementById('auth-popup').classList.remove('show');
-            showDashboard();
-        } else {
-            showDialog("❌", "Incorrect PIN", "Please enter your correct 6-digit PIN.");
-        }
-    }
-
-    function showDashboard() {
-        document.getElementById('auth-view').style.display = 'none';
-        document.getElementById('dashboard-view').style.display = 'block';
-        document.getElementById('bottom-nav').style.display = 'flex';
-        loadDailyProgress();
-        loadWalletData();
-        loadHistoryData();
-    }
-
-    function lockApp() {
-        document.getElementById('dashboard-view').style.display = 'none';
-        document.getElementById('bottom-nav').style.display = 'none';
-        document.getElementById('auth-view').style.display = 'block';
-        
-        document.getElementById('reg-form-popup').style.display = 'none';
-        document.getElementById('pin-login-form-popup').style.display = 'block';
-        document.getElementById('auth-icon').innerText = '🔐';
-        document.getElementById('auth-modal-title').innerText = 'Enter 6-Digit PIN';
-        document.getElementById('unlock-pin').value = '';
-        openAuthPopup();
-    }
-
-    function switchTab(tab, el) {
-        currentTabName = tab;
-        document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
-        if (tab === 'task') {
-            document.getElementById('tab-task').style.display = 'block';
-            document.getElementById('back-btn').style.display = 'none';
-        } else {
-            document.getElementById('back-btn').style.display = 'block';
-        }
-
-        if (tab === 'wallet') document.getElementById('tab-wallet').style.display = 'block';
-        if (tab === 'history') {
-            document.getElementById('tab-history').style.display = 'block';
-            loadHistoryData();
-        }
-        if (tab === 'notif') document.getElementById('tab-notif').style.display = 'block';
-        if (el) el.classList.add('active');
-    }
-
-    function goBackTab() {
-        switchTab('task', document.getElementById('nav-btn-task'));
-    }
-
-    function updateCharCount() {
-        const text = document.getElementById('sms-message').value;
-        const len = text.length;
-        document.getElementById('char-counter').innerText = len;
-    }
-
-    function loadDailyProgress() {
-        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-        const lastDate = localStorage.getItem("vsm_local_date");
-
-        if (lastDate !== today) {
-            localStorage.setItem("vsm_local_date", today);
-            localStorage.setItem("vsm_local_count", "0");
-        }
-
-        currentCount = parseInt(localStorage.getItem("vsm_local_count") || "0");
-        updateProgressUI();
-
-        if (currentCount >= TOTAL_TARGET) {
-            document.getElementById('task-active-box').style.display = 'none';
-            document.getElementById('daily-complete-msg').style.display = 'block';
-        } else {
-            document.getElementById('task-active-box').style.display = 'block';
-            document.getElementById('daily-complete-msg').style.display = 'none';
-            generateMaskedNumber();
-        }
-    }
-
-    function generateMaskedNumber() {
-        const prefixes = ["6", "7", "8", "9"];
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        let rest = "";
-        for (let i = 0; i < 9; i++) rest += Math.floor(Math.random() * 10);
-        let masked = (prefix + rest).slice(0, 4) + "******";
-        document.getElementById('target-number').innerText = masked;
-    }
-
-    function updateProgressUI() {
-        document.getElementById('done-count').innerText = currentCount;
-        let pct = (currentCount / TOTAL_TARGET) * 100;
-        document.getElementById('progress-fill').style.width = pct + "%";
-    }
-
-    function processTask() {
-        const msg = document.getElementById('sms-message').value.trim();
-        const len = msg.length;
-
-        if (len < 50 || len > 250) {
-            showDialog("⚠️", "Invalid Length", "Message must be between 50 and 250 characters long.");
-            return;
-        }
-
-        const now = new Date();
-        const nowTime = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const todayDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-        const nowTimestamp = now.getTime();
-
-        let historyLogs = JSON.parse(localStorage.getItem("vsm_history_logs") || "{}");
-        if (!historyLogs[todayDate]) {
-            historyLogs[todayDate] = { 
-                firstMsgTime: nowTime, 
-                firstTimestamp: nowTimestamp,
-                lastMsgTime: nowTime, 
-                lastTimestamp: nowTimestamp,
-                attendanceMarkTime: 'Pending',
-                completed: 0, 
-                amount: 0 
-            };
-        }
-        
-        historyLogs[todayDate].lastMsgTime = nowTime;
-        historyLogs[todayDate].lastTimestamp = nowTimestamp;
-
-        document.getElementById('task-active-box').style.display = 'none';
-        document.getElementById('fake-loader').style.display = 'block';
-
-        // Random timer between 10 to 30 seconds
-        let randomSecs = Math.floor(Math.random() * 21) + 10;
-        let timeLeft = randomSecs;
-        document.getElementById('timer').innerText = timeLeft;
-
-        const timer = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer').innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                document.getElementById('fake-loader').style.display = 'none';
-
-                currentCount++;
-                localStorage.setItem("vsm_local_count", currentCount);
-                updateProgressUI();
-
-                historyLogs[todayDate].completed = currentCount;
-                localStorage.setItem("vsm_history_logs", JSON.stringify(historyLogs));
-
-                if (currentCount >= TOTAL_TARGET) {
-                    markAttendanceAndCredit(nowTime);
-                } else {
-                    document.getElementById('task-active-box').style.display = 'block';
-                    generateMaskedNumber();
-                    showDialog("✅", "Success", "Message sent successfully!");
-                }
-            }
-        }, 1000);
-    }
-
-    function markAttendanceAndCredit(attendanceTime) {
-        let bal = parseFloat(localStorage.getItem("vsm_local_bal") || "0") + 400;
-        let days = parseInt(localStorage.getItem("vsm_local_days") || "0") + 1;
-
-        localStorage.setItem("vsm_local_bal", bal);
-        localStorage.setItem("vsm_local_days", days);
-
-        const todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-        let historyLogs = JSON.parse(localStorage.getItem("vsm_history_logs") || "{}");
-        if (historyLogs[todayDate]) {
-            historyLogs[todayDate].attendanceMarkTime = attendanceTime;
-            historyLogs[todayDate].amount = 400;
-            localStorage.setItem("vsm_history_logs", JSON.stringify(historyLogs));
-        }
-
-        document.getElementById('daily-complete-msg').style.display = 'block';
-        loadWalletData();
-        showDialog("🎉", "Completed!", "Attendance successfully marked and ₹400 added.");
-    }
-
-    function loadWalletData() {
-        document.getElementById('wallet-balance').innerText = "₹" + (localStorage.getItem("vsm_local_bal") || "0");
-        document.getElementById('attendance-days-lbl').innerText = "Attendance Days: " + (localStorage.getItem("vsm_local_days") || "0") + " Days";
-    }
-
-    function loadHistoryData() {
-        const container = document.getElementById('history-list-container');
-        const historyLogs = JSON.parse(localStorage.getItem("vsm_history_logs") || "{}");
-        const dates = Object.keys(historyLogs).sort().reverse();
-
-        if (dates.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-light); font-size:13px;">No work history available yet. Complete your daily tasks to view logs.</div>`;
-            return;
-        }
-
-        let html = "";
-        dates.forEach(date => {
-            let log = historyLogs[date];
-            
-            let workingDuration = "0 mins";
-            if (log.firstTimestamp && log.lastTimestamp && log.lastTimestamp > log.firstTimestamp) {
-                let diffMs = log.lastTimestamp - log.firstTimestamp;
-                let diffMins = Math.floor(diffMs / 60000);
-                let hrs = Math.floor(diffMins / 60);
-                let mins = diffMins % 60;
-                if (hrs > 0) {
-                    workingDuration = `${hrs} hrs ${mins} mins`;
-                } else {
-                    workingDuration = `${mins} mins`;
-                }
-            }
-
-            html += `
-                <div class="history-card">
-                    <div class="history-date">
-                        <span>📅 Date: ${date}</span>
-                        <span style="color:var(--success);">+₹${log.amount}</span>
-                    </div>
-                    <div class="history-row"><span>First Message Sent:</span> <strong>${log.firstMsgTime || 'N/A'}</strong></div>
-                    <div class="history-row"><span>Last Message Sent:</span> <strong>${log.lastMsgTime || 'N/A'}</strong></div>
-                    <div class="history-row"><span>Working Time (Duration):</span> <strong style="color:var(--primary);">${workingDuration}</strong></div>
-                    <div class="history-row"><span>Attendance Marked:</span> <strong style="color:var(--success);">${log.attendanceMarkTime || 'Pending'}</strong></div>
-                    <div class="history-row"><span>Tasks Completed:</span> <strong>${log.completed} / 300</strong></div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    }
-
-    function saveBankDetails() {
-        const acc = document.getElementById('bank-acc').value.trim();
-        const ifsc = document.getElementById('bank-ifsc').value.trim();
-
-        if (!acc || !ifsc) {
-            showDialog("⚠️", "Required", "Please enter Account Number and IFSC Code.");
-            return;
-        }
-
-        localStorage.setItem("vsm_bank_acc", acc);
-        localStorage.setItem("vsm_bank_ifsc", ifsc);
-        localStorage.setItem("vsm_bank_locked", "true");
-        checkBankLockState();
-        showDialog("✅", "Saved", "Bank account successfully saved.");
-    }
-
-    function checkBankLockState() {
-        if (localStorage.getItem("vsm_bank_locked") === "true") {
-            document.getElementById('bank-acc').value = localStorage.getItem("vsm_bank_acc");
-            document.getElementById('bank-ifsc').value = localStorage.getItem("vsm_bank_ifsc");
-            document.getElementById('bank-acc').disabled = true;
-            document.getElementById('bank-ifsc').disabled = true;
-            document.getElementById('btn-save-bank').style.display = 'none';
-            document.getElementById('bank-lock-msg').style.display = 'block';
-        }
-    }
-
-    function showDialog(icon, title, message) {
-        document.getElementById('dlg-icon').innerText = icon;
-        document.getElementById('dlg-title').innerText = title;
-        document.getElementById('dlg-msg').innerText = message;
-        document.getElementById('popup-dialog').classList.add('show');
-    }
-
-    function closeDialog() {
-        document.getElementById('popup-dialog').classList.remove('show');
-    }
-</script>
 
 </body>
 </html>
