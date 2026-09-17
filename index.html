@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Gateway - Access Restricted</title>
+    <title>VSM Portal - Coming Soon</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #001f3f, #004080, #001f3f);
+            background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
             background-size: 400% 400%;
             animation: gradientBG 10s ease infinite;
             height: 100vh;
@@ -29,147 +29,124 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Advanced Small Red Pulsing Popup */
-        .warning-modal {
+        /* Coming Soon Modern Card */
+        .coming-soon-modal {
             background: rgba(255, 255, 255, 0.96);
-            width: 100%;
+            width: 90%;
             max-width: 380px;
-            padding: 28px 22px;
-            border-radius: 14px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 32px 24px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.9);
             text-align: center;
-            border: 2px solid #ff4d4d;
+            border: 2px solid #e2e8f0;
             position: relative;
             backdrop-filter: blur(10px);
-            animation: redPulseModal 2s infinite ease-in-out;
+            animation: floatCard 3s ease-in-out infinite;
         }
 
-        @keyframes redPulseModal {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 15px rgba(255, 77, 77, 0.5), inset 0 0 10px rgba(255, 77, 77, 0.1);
-            }
-            50% {
-                transform: scale(1.04);
-                box-shadow: 0 0 30px rgba(255, 77, 77, 0.9), inset 0 0 15px rgba(255, 77, 77, 0.2);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 15px rgba(255, 77, 77, 0.5), inset 0 0 10px rgba(255, 77, 77, 0.1);
-            }
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
         }
 
-        /* Top Status Badge */
+        /* Top Official Status Badge */
         .status-badge {
-            background-color: #ff4d4d;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: #ffffff;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
-            padding: 4px 10px;
+            padding: 5px 14px;
             border-radius: 20px;
             display: inline-block;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-            animation: blinkBadge 1.5s infinite;
+            margin-bottom: 16px;
+            letter-spacing: 1.2px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
-        @keyframes blinkBadge {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        /* Warning Icon */
-        .warning-icon {
-            font-size: 42px;
-            color: #ff4d4d;
-            margin-bottom: 10px;
-            animation: bounceIcon 1s infinite alternate;
+        /* Animated Rocket Icon */
+        .coming-icon {
+            font-size: 48px;
+            margin-bottom: 14px;
+            display: inline-block;
+            animation: bounceIcon 1.5s infinite alternate;
         }
 
         @keyframes bounceIcon {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-4px); }
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-6px) scale(1.05); }
         }
 
-        /* Warning Header */
-        .warning-header {
-            color: #cc0000;
-            font-size: 18px;
-            font-weight: 800;
+        /* Main Heading */
+        .coming-header {
+            color: #0f172a;
+            font-size: 22px;
+            font-weight: 900;
             margin-bottom: 12px;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Warning Message */
-        .warning-message {
-            color: #2c3e50;
+        /* Descriptive Message */
+        .coming-message {
+            color: #475569;
             font-size: 13.5px;
             line-height: 1.6;
-            margin-bottom: 22px;
+            margin-bottom: 24px;
+            font-weight: 500;
         }
 
-        .warning-message strong {
-            color: #004080;
+        .coming-message strong {
+            color: #2563eb;
         }
 
-        .price-tag {
-            color: #d9534f;
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-        /* Action Button with Telegram Link */
+        /* Official Action Button (Telegram / Support) */
         .action-btn {
-            background: linear-gradient(135deg, #0088cc, #005f99); /* Telegram Blue Theme */
+            background: linear-gradient(135deg, #0088cc, #005f99);
             color: #ffffff;
             border: none;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 8px;
+            padding: 13px 20px;
+            font-size: 13.5px;
+            font-weight: 800;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
             text-decoration: none;
             display: inline-block;
-            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+            box-shadow: 0 6px 18px rgba(0, 136, 204, 0.4);
         }
 
         .action-btn:hover {
             background: linear-gradient(135deg, #0077b3, #004d80);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.6);
+            box-shadow: 0 8px 22px rgba(0, 136, 204, 0.6);
         }
     </style>
 </head>
 <body>
 
-    <div class="warning-modal">
+    <div class="coming-soon-modal">
         <!-- Status Badge -->
         <div>
-            <span class="status-badge">System Restriction</span>
+            <span class="status-badge">Official Update</span>
         </div>
 
-        <!-- Warning Icon -->
-        <div class="warning-icon">⚠️</div>
+        <!-- Rocket/Sparkle Icon -->
+        <div class="coming-icon">🚀</div>
 
-        <!-- Warning Title -->
-        <div class="warning-header">
-            Access Verification Required
+        <!-- Main Header -->
+        <div class="coming-header">
+            Coming Soon!
         </div>
 
-        <!-- Official Warning Content -->
-        <div class="warning-message">
-            Please acquire your <strong>Instaship ID</strong> to proceed further.<br>
-            Submit your request instantly through our official chatbot.<br><br>
-            <span class="price-tag">ID Activation Charge: ₹999/-</span>
+        <!-- Official English Content -->
+        <div class="coming-message">
+            We are working hard to bring something amazing for you. Operations and new updates will <strong>commence shortly</strong>. Stay tuned with us!
         </div>
 
-        <!-- Action Button Linked to Telegram Bot -->
+        <!-- Action Button Linked to Official Chatbot -->
         <a href="https://t.me/Vsmitwork_bot" target="_blank" class="action-btn">
-            🚀 Request ID via Chatbot
+            💬 Connect via Official Chatbot
         </a>
     </div>
 
